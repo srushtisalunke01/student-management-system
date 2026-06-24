@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px 5px 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #45a049; }
+        .danger-btn { background-color: #f44336; }
+        .danger-btn:hover { background-color: #da190b; }
+        input {
+            padding: 10px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #output-board {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-height: 150px;
+        }
+        .student-row {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🎓 Student Management System</h2>
+
+    <div>
+        <button onclick="showAll()">Show All Students</button>
+        <button onclick="showPassed()">Passed Students</button>
+        <button class="danger-btn" onclick="showFailed()">Failed Students</button>
+        <button onclick="showClassStats()">Class Statistics</button>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <input type="number" id="searchId" placeholder="Enter Student ID (1-5)">
+        <button onclick="findStudent()">Find Student</button>
+    </div>
+
+    <div id="output-board"></div>
+
+    <script>
+        // 1. The Data Array
+        const students = [
+            { id: 1, name: "rani", score: 85 },
+            { id: 2, name: "radha", score: 42 },
+            { id: 3, name: "sham", score: 78 },
+            { id: 4, name: "komal", score: 92 },
+            { id: 5, name: "isha", score: 35 }
+        ];
+
+        const outputBoard = document.getElementById("output-board");
+
+        // Helper function to render a list to the screen using map()
+        function renderList(studentArray, title) {
+            // Using map() to convert data into HTML
+            const htmlContent = studentArray.map(student => {
+                const status = student.score >= 50 ? "✅ Pass" : "❌ Fail";
+                return `<div class="student-row">
+                            <strong>ID: ${student.id}</strong> | ${student.name} - Score: ${student.score} (${status})
+                        </div>`;
+            }).join(""); // Join the array of strings into one big HTML string
+
+            outputBoard.innerHTML = `<h3>${title}</h3>` + (htmlContent || "<p>No students found.</p>");
+        }
+
+        // --- Array Method Implementations ---
+
+        // forEach() & map()
+        function showAll() {
+            // Using forEach just to log to the console
+            console.log("Loading all students...");
+            students.forEach(student => console.log(student.name));
+            
+            // Render to screen
+            renderList(students, "All Enrolled Students");
+        }
+
+        // filter() - Pass
+        function showPassed() {
+            const passedStudents = students.filter(student => student.score >= 50);
+            renderList(passedStudents, "🎉 Passed Students");
+        }
+
+        // filter() - Fail
+        function showFailed() {
+            const failedStudents = students.filter(student => student.score < 50);
+            renderList(failedStudents, "⚠️ Failed Students");
+        }
+
+        // find() - By ID
+        function findStudent() {
+            const inputId = parseInt(document.getElementById("searchId").value);
+            
+            // find() stops searching as soon as it finds the first match
+            const foundStudent = students.find(student => student.id === inputId);
+
+            if (foundStudent) {
+                const status = foundStudent.score >= 50 ? "✅ Pass" : "❌ Fail";
+                outputBoard.innerHTML = `
+                    <h3>🔍 Student Found</h3>
+                    <div class="student-row" style="background-color: #e8f5e9;">
+                        <strong>ID: ${foundStudent.id}</strong> | ${foundStudent.name} - Score: ${foundStudent.score} (${status})
+                    </div>`;
+            } else {
+                outputBoard.innerHTML = `<h3>Student with ID ${inputId} not found.</h3>`;
+            }
+        }
+
+        // reduce(), some(), every()
+        function showClassStats() {
+            // reduce() - Accumulate all scores to find the average
+            const totalScore = students.reduce((sum, student) => sum + student.score, 0);
+            const average = (totalScore / students.length).toFixed(1);
+
+            // some() - Returns true if AT LEAST ONE student matches the condition
+            const hasFailingStudents = students.some(student => student.score < 50);
+
+            // every() - Returns true ONLY IF ALL students match the condition
+            const everyonePassed = students.every(student => student.score >= 50);
+
+            outputBoard.innerHTML = `
+                <h3>📊 Class Statistics</h3>
+                <p><strong>Class Average:</strong> ${average} <em>(calculated with reduce)</em></p>
+                <p><strong>Are there any failing students?</strong> ${hasFailingStudents ? "Yes ❌" : "No ✅"} <em>(calculated with some)</em></p>
+                <p><strong>Did everyone pass?</strong> ${everyonePassed ? "Yes ✅" : "No ❌"} <em>(calculated with every)</em></p>
+            `;
+        }
+
+        // Initialize the app by showing all students on load
+        showAll();
+    </script>
+
+</body>
+</html>
